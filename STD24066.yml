@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: "24066"
+  description: "This is a specification of 24066."
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8000
+paths:
+  /ping:
+    get:
+      summary: Vérifier l'état de l'API
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "pong"
+  /cars:
+    get:
+      summary: Récupérer la liste de tous les véhicules
+      responses:
+        "200":
+          description: Liste des véhicules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Car"
+    post:
+      summary: Créer un nouveau véhicule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: L'identifiant unique du véhicule.
+                brand:
+                  type: string
+                  description: La marque du véhicule.
+                model:
+                  type: string
+                  description: Le modèle du véhicule.
+      responses:
+        "201":
+          description: Véhicule créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Car"
+        "409":
+          description: Conflit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /cars/{id}:
+    get:
+      summary: Récupérer un véhicule par son ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: L'identifiant unique du véhicule.
+      responses:
+        "200":
+          description: Véhicule trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Car"
+        "404":
+          description: Véhicule non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /cars/{id}/characteristics:
+    put:
+      summary: Mettre à jour les caractéristiques d'un véhicule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: L'identifiant unique du véhicule.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Characteristic"
+      responses:
+        "200":
+          description: Caractéristiques mises à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Car"
+        "404":
+          description: Véhicule non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Car:
+      type: object
+      properties:
+        id:
+          type: string
+          description: L'identifiant unique du véhicule.
+        brand:
+          type: string
+          description: La marque du véhicule.
+        model:
+          type: string
+          description: Le modèle du véhicule.
+        characteristics:
+          $ref: "#/components/schemas/Characteristic"
+      required:
+        - id
+        - brand
+        - model
+    Characteristic:
+      type: object
+      properties:
+        max_speed:
+          type: number
+          format: float
+          description: Vitesse maximale du véhicule en km/h.
+        max_fuel_capacity:
+          type: number
+          format: float
+          description: Capacité maximale du réservoir en litres.
+      required:
+        - max_speed
+        - max_fuel_capacity
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Description de l'erreur.
+      required:
+        - detail
